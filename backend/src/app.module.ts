@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 
 import { ClientesModule } from './clientes/clientes.module';
 import { VehiculosModule } from './vehiculos/vehiculos.module';
+import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { VehiculosModule } from './vehiculos/vehiculos.module';
 
     ClientesModule,
     VehiculosModule,
+    OrdenesTrabajoModule,
   ],
 
   controllers: [AppController],
