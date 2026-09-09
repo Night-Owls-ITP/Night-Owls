@@ -1,32 +1,52 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateVehiculoDto } from './dto/create-vehiculo.dto';
-import { UpdateVehiculoDto } from './dto/update-vehiculo.dto';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { Repository } from 'typeorm';
+
 import { Vehiculo } from './vehiculo.entity';
+
+import { CreateVehiculoDto } from './dto/create-vehiculo.dto';
+
+import { UpdateVehiculoDto } from './dto/update-vehiculo.dto';
 
 @Injectable()
 export class VehiculosService {
-  private vehiculos: Vehiculo[] = [];
-  private siguienteId = 1;
+  constructor(
+    @InjectRepository(Vehiculo)
+    private readonly vehiculoRepository:
+      Repository<Vehiculo>,
+  ) {}
 
-  crear(createVehiculoDto: CreateVehiculoDto): Vehiculo {
-    const vehiculo: Vehiculo = {
-      id: this.siguienteId++,
-      ...createVehiculoDto,
-    };
+  async crear(
+    createVehiculoDto: CreateVehiculoDto,
+  ): Promise<Vehiculo> {
+    const vehiculo =
+      this.vehiculoRepository.create(
+        createVehiculoDto,
+      );
 
-    this.vehiculos.push(vehiculo);
-
-    return vehiculo;
-  }
-
-  obtenerTodos(): Vehiculo[] {
-    return this.vehiculos;
-  }
-
-  obtenerPorId(id: number): Vehiculo {
-    const vehiculo = this.vehiculos.find(
-      (vehiculo) => vehiculo.id === id,
+    return await this.vehiculoRepository.save(
+      vehiculo,
     );
+  }
+
+  async obtenerTodos(): Promise<Vehiculo[]> {
+    return await this.vehiculoRepository.find();
+  }
+
+  async obtenerPorId(
+    id: number,
+  ): Promise<Vehiculo> {
+    const vehiculo =
+      await this.vehiculoRepository.findOne({
+        where: {
+          id,
+        },
+      });
 
     if (!vehiculo) {
       throw new NotFoundException(
@@ -37,28 +57,36 @@ export class VehiculosService {
     return vehiculo;
   }
 
-  actualizar(
+  async actualizar(
     id: number,
     datos: UpdateVehiculoDto,
-  ): Vehiculo {
-    const vehiculo = this.obtenerPorId(id);
+  ): Promise<Vehiculo> {
+    const vehiculo =
+      await this.obtenerPorId(id);
 
-    Object.assign(vehiculo, datos);
-
-    return vehiculo;
-  }
-
-  eliminar(id: number): void {
-    const indice = this.vehiculos.findIndex(
-      (vehiculo) => vehiculo.id === id,
+    Object.assign(
+      vehiculo,
+      datos,
     );
 
-    if (indice === -1) {
-      throw new NotFoundException(
-        `No se encontró el vehículo con ID ${id}`,
-      );
-    }
+    return await this.vehiculoRepository.save(
+      vehiculo,
+    );
+  }
 
-    this.vehiculos.splice(indice, 1);
+  async eliminar(
+    id: number,
+  ) {
+    const vehiculo =
+      await this.obtenerPorId(id);
+
+    await this.vehiculoRepository.remove(
+      vehiculo,
+    );
+
+    return {
+      message:
+        'Vehículo eliminado correctamente',
+    };
   }
 }
