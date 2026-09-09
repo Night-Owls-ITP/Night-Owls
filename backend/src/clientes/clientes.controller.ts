@@ -4,12 +4,15 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
 
 import { ClientesService } from './clientes.service';
+
 import { CreateClienteDto } from './dto/create-cliente.dto';
+
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Controller('clientes')
@@ -19,33 +22,51 @@ export class ClientesController {
   ) {}
 
   @Post()
-  create(@Body() createClienteDto: CreateClienteDto) {
-    return this.clientesService.create(createClienteDto);
+  crear(
+    @Body()
+    createClienteDto: CreateClienteDto,
+  ) {
+    return this.clientesService.crear(
+      createClienteDto,
+    );
   }
 
   @Get()
-  findAll() {
-    return this.clientesService.findAll();
+  obtenerTodos() {
+    return this.clientesService.obtenerTodos();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.clientesService.findOne(Number(id));
+  obtenerPorId(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.clientesService.obtenerPorId(
+      id,
+    );
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateClienteDto: UpdateClienteDto,
+  actualizar(
+    @Param('id', ParseIntPipe)
+    id: number,
+
+    @Body()
+    updateClienteDto: UpdateClienteDto,
   ) {
-    return this.clientesService.update(
-      Number(id),
+    return this.clientesService.actualizar(
+      id,
       updateClienteDto,
     );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clientesService.remove(Number(id));
+  eliminar(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.clientesService.eliminar(
+      id,
+    );
   }
 }

@@ -3,34 +3,40 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Cliente } from './cliente.entity';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
-import { Cliente } from './cliente.entity';
 
 @Injectable()
 export class ClientesService {
-  private clientes: Cliente[] = [];
-  private id = 1;
+  constructor(
+    @InjectRepository(Cliente)
+    private readonly clienteRepository: Repository<Cliente>,
+  ) {}
 
-  create(createClienteDto: CreateClienteDto) {
-    const cliente = {
-      id: this.id++,
-      ...createClienteDto,
-    };
-
-    this.clientes.push(cliente);
-
-    return cliente;
-  }
-
-  findAll() {
-    return this.clientes;
-  }
-
-  findOne(id: number) {
-    const cliente = this.clientes.find(
-      (cliente) => cliente.id === id,
+  async crear(
+    createClienteDto: CreateClienteDto,
+  ): Promise<Cliente> {
+    const cliente = this.clienteRepository.create(
+      createClienteDto,
     );
+
+    return await this.clienteRepository.save(cliente);
+  }
+
+  async obtenerTodos(): Promise<Cliente[]> {
+    return await this.clienteRepository.find();
+  }
+
+  async obtenerPorId(id: number): Promise<Cliente> {
+    const cliente = await this.clienteRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     if (!cliente) {
       throw new NotFoundException(
@@ -41,24 +47,24 @@ export class ClientesService {
     return cliente;
   }
 
-  update(id: number, updateClienteDto: UpdateClienteDto) {
-    const cliente = this.findOne(id);
+  async actualizar(
+    id: number,
+    datos: UpdateClienteDto,
+  ): Promise<Cliente> {
+    const cliente = await this.obtenerPorId(id);
 
-    Object.assign(cliente, updateClienteDto);
+    Object.assign(cliente, datos);
 
-    return cliente;
+    return await this.clienteRepository.save(cliente);
   }
 
-  remove(id: number) {
-    const cliente = this.findOne(id);
+  async eliminar(id: number) {
+    const cliente = await this.obtenerPorId(id);
 
-    this.clientes = this.clientes.filter(
-      (cliente) => cliente.id !== id,
-    );
+    await this.clienteRepository.remove(cliente);
 
     return {
       message: 'Cliente eliminado correctamente',
-      cliente,
     };
   }
 }
