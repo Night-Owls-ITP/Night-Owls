@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Vehiculo } from './vehiculo.entity';
+import { Cliente } from '../clientes/cliente.entity';
 
 import { CreateVehiculoDto } from './dto/create-vehiculo.dto';
 
@@ -17,17 +18,29 @@ import { UpdateVehiculoDto } from './dto/update-vehiculo.dto';
 export class VehiculosService {
   constructor(
     @InjectRepository(Vehiculo)
-    private readonly vehiculoRepository:
-      Repository<Vehiculo>,
+    private readonly vehiculoRepository: Repository<Vehiculo>,
+    @InjectRepository(Cliente)
+    private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
   async crear(
     createVehiculoDto: CreateVehiculoDto,
   ): Promise<Vehiculo> {
-    const vehiculo =
-      this.vehiculoRepository.create(
-        createVehiculoDto,
+    const { clienteId, ...datosVehiculo } = createVehiculoDto;
+    const cliente = await this.clienteRepository.findOne({
+      where: { id: clienteId },
+    });
+
+    if (!cliente) {
+      throw new NotFoundException(
+        `Cliente con ID ${clienteId} no encontrado`,
       );
+    }
+
+    const vehiculo = this.vehiculoRepository.create({
+      ...datosVehiculo,
+      cliente,
+    });
 
     return await this.vehiculoRepository.save(
       vehiculo,
@@ -64,10 +77,23 @@ export class VehiculosService {
     const vehiculo =
       await this.obtenerPorId(id);
 
-    Object.assign(
-      vehiculo,
-      datos,
-    );
+    const { clienteId, ...datosVehiculo } = datos;
+
+    if (clienteId !== undefined) {
+      const cliente = await this.clienteRepository.findOne({
+        where: { id: clienteId },
+      });
+
+      if (!cliente) {
+        throw new NotFoundException(
+          `Cliente con ID ${clienteId} no encontrado`,
+        );
+      }
+
+      vehiculo.cliente = cliente;
+    }
+
+    Object.assign(vehiculo, datosVehiculo);
 
     return await this.vehiculoRepository.save(
       vehiculo,

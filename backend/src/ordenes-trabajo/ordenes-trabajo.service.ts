@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { OrdenTrabajo } from './orden-trabajo.entity';
+import { Vehiculo } from '../vehiculos/vehiculo.entity';
 
 import { CreateOrdenTrabajoDto } from './dto/create-orden-trabajo.dto';
 
@@ -17,14 +18,28 @@ export class OrdenesTrabajoService {
   constructor(
     @InjectRepository(OrdenTrabajo)
     private readonly ordenRepository: Repository<OrdenTrabajo>,
+    @InjectRepository(Vehiculo)
+    private readonly vehiculoRepository: Repository<Vehiculo>,
   ) {}
 
   async crear(
     createOrdenTrabajoDto: CreateOrdenTrabajoDto,
   ): Promise<OrdenTrabajo> {
-    const orden = this.ordenRepository.create(
-      createOrdenTrabajoDto,
-    );
+    const { vehiculoId, ...datosOrden } = createOrdenTrabajoDto;
+    const vehiculo = await this.vehiculoRepository.findOne({
+      where: { id: vehiculoId },
+    });
+
+    if (!vehiculo) {
+      throw new NotFoundException(
+        `Vehículo con ID ${vehiculoId} no encontrado`,
+      );
+    }
+
+    const orden = this.ordenRepository.create({
+      ...datosOrden,
+      vehiculo,
+    });
 
     return await this.ordenRepository.save(orden);
   }
@@ -55,7 +70,23 @@ export class OrdenesTrabajoService {
   ): Promise<OrdenTrabajo> {
     const orden = await this.obtenerPorId(id);
 
-    Object.assign(orden, datos);
+    const { vehiculoId, ...datosOrden } = datos;
+
+    if (vehiculoId !== undefined) {
+      const vehiculo = await this.vehiculoRepository.findOne({
+        where: { id: vehiculoId },
+      });
+
+      if (!vehiculo) {
+        throw new NotFoundException(
+          `Vehículo con ID ${vehiculoId} no encontrado`,
+        );
+      }
+
+      orden.vehiculo = vehiculo;
+    }
+
+    Object.assign(orden, datosOrden);
 
     return await this.ordenRepository.save(orden);
   }

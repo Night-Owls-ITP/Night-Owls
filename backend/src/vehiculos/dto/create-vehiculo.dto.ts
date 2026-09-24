@@ -7,6 +7,10 @@ import {
 } from 'class-validator';
 
 export class CreateVehiculoDto {
+  @IsInt()
+  @Min(1)
+  clienteId!: number;
+
   @IsString()
   @IsNotEmpty()
   @Length(6, 10)

@@ -38,7 +38,7 @@ import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
 
         autoLoadEntities: true,
 
-        synchronize: true,
+        synchronize: false,
       }),
     }),
 
