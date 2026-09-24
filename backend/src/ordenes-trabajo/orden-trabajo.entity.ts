@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 import { Vehiculo } from '../vehiculos/vehiculo.entity';
 
@@ -18,6 +19,9 @@ export class OrdenTrabajo {
   })
   @JoinColumn({ name: 'vehiculoId' })
   vehiculo!: Vehiculo;
+
+  @RelationId((orden: OrdenTrabajo) => orden.vehiculo)
+  vehiculoId!: number;
 
   @Column({
     type: 'varchar',
