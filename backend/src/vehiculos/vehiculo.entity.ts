@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 import { Cliente } from '../clientes/cliente.entity';
 import { OrdenTrabajo } from '../ordenes-trabajo/orden-trabajo.entity';
@@ -50,6 +51,9 @@ export class Vehiculo {
   })
   @JoinColumn({ name: 'clienteId' })
   cliente!: Cliente;
+
+  @RelationId((vehiculo: Vehiculo) => vehiculo.cliente)
+  clienteId!: number;
 
   @OneToMany(() => OrdenTrabajo, (orden) => orden.vehiculo)
   ordenesTrabajo!: OrdenTrabajo[];

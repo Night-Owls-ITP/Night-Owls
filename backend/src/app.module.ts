@@ -38,7 +38,8 @@ import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
 
         autoLoadEntities: true,
 
-        synchronize: false,
+        synchronize:
+          configService.get<string>('DB_SYNCHRONIZE') === 'true',
       }),
     }),
 
