@@ -1,8 +1,13 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Cliente } from '../clientes/cliente.entity';
+import { OrdenTrabajo } from '../ordenes-trabajo/orden-trabajo.entity';
 
 @Entity('vehiculos')
 export class Vehiculo {
@@ -38,4 +43,14 @@ export class Vehiculo {
     length: 30,
   })
   color!: string;
+
+  @ManyToOne(() => Cliente, (cliente) => cliente.vehiculos, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  @JoinColumn({ name: 'clienteId' })
+  cliente!: Cliente;
+
+  @OneToMany(() => OrdenTrabajo, (orden) => orden.vehiculo)
+  ordenesTrabajo!: OrdenTrabajo[];
 }

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Vehiculo } from './vehiculo.entity';
+import { Cliente } from '../clientes/cliente.entity';
 import { VehiculosController } from './vehiculos.controller';
 import { VehiculosService } from './vehiculos.service';
 
@@ -9,6 +10,7 @@ import { VehiculosService } from './vehiculos.service';
   imports: [
     TypeOrmModule.forFeature([
       Vehiculo,
+      Cliente,
     ]),
   ],
 

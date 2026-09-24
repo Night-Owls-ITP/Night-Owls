@@ -1,18 +1,23 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Vehiculo } from '../vehiculos/vehiculo.entity';
 
 @Entity('ordenes_trabajo')
 export class OrdenTrabajo {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({
-    type: 'int',
+  @ManyToOne(() => Vehiculo, (vehiculo) => vehiculo.ordenesTrabajo, {
+    onDelete: 'CASCADE',
+    nullable: false,
   })
-  vehiculoId!: number;
+  @JoinColumn({ name: 'vehiculoId' })
+  vehiculo!: Vehiculo;
 
   @Column({
     type: 'varchar',

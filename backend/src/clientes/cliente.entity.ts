@@ -1,8 +1,10 @@
 import {
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Vehiculo } from '../vehiculos/vehiculo.entity';
 
 @Entity('clientes')
 export class Cliente {
@@ -34,4 +36,7 @@ export class Cliente {
     unique: true,
   })
   email!: string;
+
+  @OneToMany(() => Vehiculo, (vehiculo) => vehiculo.cliente)
+  vehiculos!: Vehiculo[];
 }

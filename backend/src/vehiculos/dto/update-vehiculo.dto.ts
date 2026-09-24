@@ -8,6 +8,11 @@ import {
 
 export class UpdateVehiculoDto {
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  clienteId?: number;
+
+  @IsOptional()
   @IsString()
   @Length(6, 10)
   placa?: string;
