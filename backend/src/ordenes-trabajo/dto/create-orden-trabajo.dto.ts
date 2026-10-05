@@ -5,12 +5,18 @@ import {
   IsString,
   Length,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateOrdenTrabajoDto {
   @IsInt()
   @Min(1)
   vehiculoId!: number;
+
+  @ValidateIf((_orden, value) => value !== undefined && value !== null)
+  @IsInt()
+  @Min(1)
+  mecanicoId?: number | null;
 
   @IsString()
   @IsNotEmpty()

@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 
 import { OrdenTrabajo } from './orden-trabajo.entity';
 import { Vehiculo } from '../vehiculos/vehiculo.entity';
+import { Mecanico } from '../mecanicos/mecanico.entity';
 
 import { CreateOrdenTrabajoDto } from './dto/create-orden-trabajo.dto';
 
@@ -20,12 +21,14 @@ export class OrdenesTrabajoService {
     private readonly ordenRepository: Repository<OrdenTrabajo>,
     @InjectRepository(Vehiculo)
     private readonly vehiculoRepository: Repository<Vehiculo>,
+    @InjectRepository(Mecanico)
+    private readonly mecanicoRepository: Repository<Mecanico>,
   ) {}
 
   async crear(
     createOrdenTrabajoDto: CreateOrdenTrabajoDto,
   ): Promise<OrdenTrabajo> {
-    const { vehiculoId, ...datosOrden } = createOrdenTrabajoDto;
+    const { vehiculoId, mecanicoId, ...datosOrden } = createOrdenTrabajoDto;
     const vehiculo = await this.vehiculoRepository.findOne({
       where: { id: vehiculoId },
     });
@@ -36,9 +39,15 @@ export class OrdenesTrabajoService {
       );
     }
 
+    const mecanico =
+      mecanicoId === undefined || mecanicoId === null
+        ? null
+        : await this.obtenerMecanicoActivo(mecanicoId);
+
     const orden = this.ordenRepository.create({
       ...datosOrden,
       vehiculo,
+      mecanico,
     });
 
     return await this.ordenRepository.save(orden);
@@ -70,7 +79,7 @@ export class OrdenesTrabajoService {
   ): Promise<OrdenTrabajo> {
     const orden = await this.obtenerPorId(id);
 
-    const { vehiculoId, ...datosOrden } = datos;
+    const { vehiculoId, mecanicoId, ...datosOrden } = datos;
 
     if (vehiculoId !== undefined) {
       const vehiculo = await this.vehiculoRepository.findOne({
@@ -86,6 +95,13 @@ export class OrdenesTrabajoService {
       orden.vehiculo = vehiculo;
     }
 
+    if (mecanicoId !== undefined) {
+      orden.mecanico =
+        mecanicoId === null
+          ? null
+          : await this.obtenerMecanicoActivo(mecanicoId);
+    }
+
     Object.assign(orden, datosOrden);
 
     return await this.ordenRepository.save(orden);
@@ -99,5 +115,19 @@ export class OrdenesTrabajoService {
     return {
       message: 'Orden de trabajo eliminada correctamente',
     };
+  }
+
+  private async obtenerMecanicoActivo(id: number): Promise<Mecanico> {
+    const mecanico = await this.mecanicoRepository.findOne({
+      where: { id, activo: true },
+    });
+
+    if (!mecanico) {
+      throw new NotFoundException(
+        `Mecánico activo con ID ${id} no encontrado`,
+      );
+    }
+
+    return mecanico;
   }
 }
