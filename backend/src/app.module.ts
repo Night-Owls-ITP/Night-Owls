@@ -8,6 +8,10 @@ import { AppService } from './app.service';
 import { ClientesModule } from './clientes/clientes.module';
 import { VehiculosModule } from './vehiculos/vehiculos.module';
 import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
+import { MecanicosModule } from './mecanicos/mecanicos.module';
+import { ServiciosModule } from './servicios/servicios.module';
+import { DetallesServicioModule } from './detalles-servicio/detalles-servicio.module';
+import { CitasModule } from './citas/citas.module';
 
 @Module({
   imports: [
@@ -46,6 +50,10 @@ import { OrdenesTrabajoModule } from './ordenes-trabajo/ordenes-trabajo.module';
     ClientesModule,
     VehiculosModule,
     OrdenesTrabajoModule,
+    MecanicosModule,
+    ServiciosModule,
+    DetallesServicioModule,
+    CitasModule,
   ],
 
   controllers: [AppController],

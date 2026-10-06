@@ -7,6 +7,7 @@ import {
   RelationId,
 } from 'typeorm';
 import { Vehiculo } from '../vehiculos/vehiculo.entity';
+import { Mecanico } from '../mecanicos/mecanico.entity';
 
 @Entity('ordenes_trabajo')
 export class OrdenTrabajo {
@@ -22,6 +23,16 @@ export class OrdenTrabajo {
 
   @RelationId((orden: OrdenTrabajo) => orden.vehiculo)
   vehiculoId!: number;
+
+  @ManyToOne(() => Mecanico, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'mecanicoId' })
+  mecanico!: Mecanico | null;
+
+  @RelationId((orden: OrdenTrabajo) => orden.mecanico)
+  mecanicoId!: number | null;
 
   @Column({
     type: 'varchar',
