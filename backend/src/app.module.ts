@@ -12,6 +12,10 @@ import { MecanicosModule } from './mecanicos/mecanicos.module';
 import { ServiciosModule } from './servicios/servicios.module';
 import { DetallesServicioModule } from './detalles-servicio/detalles-servicio.module';
 import { CitasModule } from './citas/citas.module';
+import { RepuestosModule } from './repuestos/repuestos.module';
+import { ProveedoresModule } from './proveedores/proveedores.module';
+import { ComprasModule } from './compras/compras.module';
+import { DetallesCompraModule } from './detalles-compra/detalles-compra.module';
 
 @Module({
   imports: [
@@ -54,6 +58,10 @@ import { CitasModule } from './citas/citas.module';
     ServiciosModule,
     DetallesServicioModule,
     CitasModule,
+    RepuestosModule,
+    ProveedoresModule,
+    ComprasModule,
+    DetallesCompraModule,
   ],
 
   controllers: [AppController],
