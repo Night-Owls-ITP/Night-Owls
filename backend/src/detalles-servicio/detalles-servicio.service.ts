@@ -1,16 +1,18 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Factura } from '../facturas/factura.entity';
 import { OrdenTrabajo } from '../ordenes-trabajo/orden-trabajo.entity';
+import { Servicio } from '../servicios/servicio.entity';
 import { CreateDetalleServicioDto } from './dto/create-detalle-servicio.dto';
 import { UpdateDetalleServicioDto } from './dto/update-detalle-servicio.dto';
 import { DetalleServicio } from './detalle-servicio.entity';
 import { calcularSubtotal } from './money';
-import { Servicio } from '../servicios/servicio.entity';
 
 @Injectable()
 export class DetallesServicioService {
@@ -21,10 +23,13 @@ export class DetallesServicioService {
     private readonly ordenRepository: Repository<OrdenTrabajo>,
     @InjectRepository(Servicio)
     private readonly servicioRepository: Repository<Servicio>,
+    @InjectRepository(Factura)
+    private readonly facturaRepository?: Repository<Factura>,
   ) {}
 
   async crear(datos: CreateDetalleServicioDto) {
     const ordenTrabajo = await this.obtenerOrden(datos.ordenTrabajoId);
+    await this.validarOrdenSinFactura(ordenTrabajo.id);
     const servicio = await this.obtenerServicioActivo(datos.servicioId);
     const precioUnitario = datos.precioUnitario ?? Number(servicio.precioBase);
     const detalle = await this.detalleRepository.save(
@@ -59,7 +64,11 @@ export class DetallesServicioService {
     let servicio = detalle.servicio;
 
     if (datos.ordenTrabajoId !== undefined) {
-      detalle.ordenTrabajo = await this.obtenerOrden(datos.ordenTrabajoId);
+      const orden = await this.obtenerOrden(datos.ordenTrabajoId);
+      await this.validarOrdenSinFactura(orden.id);
+      detalle.ordenTrabajo = orden;
+    } else {
+      await this.validarOrdenSinFactura(detalle.ordenTrabajoId);
     }
 
     if (
@@ -88,6 +97,7 @@ export class DetallesServicioService {
 
   async eliminar(id: number): Promise<{ message: string }> {
     const detalle = await this.obtenerEntidad(id);
+    await this.validarOrdenSinFactura(detalle.ordenTrabajoId);
     await this.detalleRepository.remove(detalle);
     return { message: 'Detalle de servicio eliminado correctamente' };
   }
@@ -124,6 +134,20 @@ export class DetallesServicioService {
       throw new NotFoundException(`Servicio activo con ID ${id} no encontrado`);
     }
     return servicio;
+  }
+
+  private async validarOrdenSinFactura(ordenTrabajoId: number): Promise<void> {
+    if (!this.facturaRepository) {
+      return;
+    }
+    const factura = await this.facturaRepository.findOne({
+      where: { ordenTrabajo: { id: ordenTrabajoId } },
+    });
+    if (factura) {
+      throw new ConflictException(
+        'No se puede modificar un detalle de una orden facturada',
+      );
+    }
   }
 
   private validarId(id: number): void {

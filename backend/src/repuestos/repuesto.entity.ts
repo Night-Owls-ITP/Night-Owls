@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DetalleCompra } from '../detalles-compra/detalle-compra.entity';
+import { DetalleRepuesto } from '../detalles-repuesto/detalle-repuesto.entity';
 
 @Entity('repuestos')
 @Index('UQ_repuestos_codigo', ['codigo'], { unique: true })
@@ -36,4 +37,7 @@ export class Repuesto {
 
   @OneToMany(() => DetalleCompra, (detalle) => detalle.repuesto)
   detallesCompra!: DetalleCompra[];
+
+  @OneToMany(() => DetalleRepuesto, (detalle) => detalle.repuesto)
+  detallesRepuesto!: DetalleRepuesto[];
 }

@@ -16,6 +16,10 @@ import { RepuestosModule } from './repuestos/repuestos.module';
 import { ProveedoresModule } from './proveedores/proveedores.module';
 import { ComprasModule } from './compras/compras.module';
 import { DetallesCompraModule } from './detalles-compra/detalles-compra.module';
+import { DetallesRepuestoModule } from './detalles-repuesto/detalles-repuesto.module';
+import { FacturasModule } from './facturas/facturas.module';
+import { PagosModule } from './pagos/pagos.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 @Module({
   imports: [
@@ -62,6 +66,10 @@ import { DetallesCompraModule } from './detalles-compra/detalles-compra.module';
     ProveedoresModule,
     ComprasModule,
     DetallesCompraModule,
+    DetallesRepuestoModule,
+    FacturasModule,
+    PagosModule,
+    UsuariosModule,
   ],
 
   controllers: [AppController],

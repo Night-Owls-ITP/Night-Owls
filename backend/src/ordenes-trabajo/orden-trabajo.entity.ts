@@ -3,11 +3,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
-import { Vehiculo } from '../vehiculos/vehiculo.entity';
+import { Factura } from '../facturas/factura.entity';
 import { Mecanico } from '../mecanicos/mecanico.entity';
+import { Vehiculo } from '../vehiculos/vehiculo.entity';
+import { DetalleRepuesto } from '../detalles-repuesto/detalle-repuesto.entity';
 
 @Entity('ordenes_trabajo')
 export class OrdenTrabajo {
@@ -55,4 +59,12 @@ export class OrdenTrabajo {
     type: 'date',
   })
   fecha!: string;
+
+  @OneToOne(() => Factura, (factura) => factura.ordenTrabajo, {
+    nullable: true,
+  })
+  factura?: Factura | null;
+
+  @OneToMany(() => DetalleRepuesto, (detalle) => detalle.ordenTrabajo)
+  detallesRepuesto!: DetalleRepuesto[];
 }
