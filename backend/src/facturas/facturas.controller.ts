@@ -8,11 +8,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '../auth/roles.decorator';
 import { CreateFacturaDto } from './dto/create-factura.dto';
 import { UpdateFacturaDto } from './dto/update-factura.dto';
 import { FacturasService } from './facturas.service';
+import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('facturas')
+@Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
 export class FacturasController {
   constructor(private readonly facturasService: FacturasService) {}
 

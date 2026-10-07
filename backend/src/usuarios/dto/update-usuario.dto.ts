@@ -2,32 +2,40 @@ import {
   IsBoolean,
   IsEmail,
   IsEnum,
-  IsOptional,
   IsString,
+  IsInt,
   Length,
+  Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+import { UserRole } from '../user-role.enum';
 
 export class UpdateUsuarioDto {
-  @IsOptional()
+  @ValidateIf((_dto, value) => value !== undefined)
   @IsString()
   @Length(1, 150)
   nombre?: string;
 
-  @IsOptional()
+  @ValidateIf((_dto, value) => value !== undefined)
   @IsEmail()
   email?: string;
 
-  @IsOptional()
+  @ValidateIf((_dto, value) => value !== undefined)
   @IsString()
   @MinLength(8)
   password?: string;
 
-  @IsOptional()
-  @IsEnum(['administrador', 'recepcionista', 'mecanico'])
-  rol?: string;
+  @ValidateIf((_dto, value) => value !== undefined)
+  @IsEnum(UserRole)
+  rol?: UserRole;
 
-  @IsOptional()
+  @ValidateIf((_dto, value) => value !== undefined)
   @IsBoolean()
   activo?: boolean;
+
+  @ValidateIf((_dto, value) => value !== undefined && value !== null)
+  @IsInt()
+  @Min(1)
+  mecanicoId?: number | null;
 }

@@ -8,11 +8,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '../auth/roles.decorator';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosService } from './usuarios.service';
+import { UserRole } from './user-role.enum';
 
 @Controller('usuarios')
+@Roles(UserRole.ADMINISTRADOR)
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
@@ -24,6 +27,11 @@ export class UsuariosController {
   @Get()
   obtenerTodos() {
     return this.usuariosService.obtenerTodos();
+  }
+
+  @Get('roles')
+  obtenerRoles() {
+    return this.usuariosService.obtenerRoles();
   }
 
   @Get(':id')

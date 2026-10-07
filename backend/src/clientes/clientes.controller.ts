@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../usuarios/user-role.enum';
 
 import { ClientesService } from './clientes.service';
 
@@ -16,12 +18,14 @@ import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Controller('clientes')
+@Roles(UserRole.ADMINISTRADOR)
 export class ClientesController {
   constructor(
     private readonly clientesService: ClientesService,
   ) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.RECEPCIONISTA)
   crear(
     @Body()
     createClienteDto: CreateClienteDto,
@@ -32,11 +36,13 @@ export class ClientesController {
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.RECEPCIONISTA, UserRole.CAJERO)
   obtenerTodos() {
     return this.clientesService.obtenerTodos();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.RECEPCIONISTA, UserRole.CAJERO)
   obtenerPorId(
     @Param('id', ParseIntPipe)
     id: number,
@@ -47,6 +53,7 @@ export class ClientesController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.RECEPCIONISTA)
   actualizar(
     @Param('id', ParseIntPipe)
     id: number,

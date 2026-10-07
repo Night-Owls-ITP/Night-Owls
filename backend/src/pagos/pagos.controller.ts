@@ -8,11 +8,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '../auth/roles.decorator';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { PagosService } from './pagos.service';
+import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('pagos')
+@Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
 export class PagosController {
   constructor(private readonly pagosService: PagosService) {}
 

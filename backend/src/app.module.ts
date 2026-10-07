@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -20,12 +21,16 @@ import { DetallesRepuestoModule } from './detalles-repuesto/detalles-repuesto.mo
 import { FacturasModule } from './facturas/facturas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { AuthModule } from './auth/auth.module';
+import { BasicAuthGuard } from './auth/basic-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    AuthModule,
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -74,6 +79,10 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 
   controllers: [AppController],
 
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: BasicAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,9 @@ import { Repository } from 'typeorm';
 import { OrdenTrabajo } from './orden-trabajo.entity';
 import { Vehiculo } from '../vehiculos/vehiculo.entity';
 import { Mecanico } from '../mecanicos/mecanico.entity';
+import { Usuario } from '../usuarios/usuario.entity';
+import { UserRole } from '../usuarios/user-role.enum';
+import { AuthenticatedUser } from '../auth/authenticated-user';
 
 import { CreateOrdenTrabajoDto } from './dto/create-orden-trabajo.dto';
 
@@ -23,6 +27,8 @@ export class OrdenesTrabajoService {
     private readonly vehiculoRepository: Repository<Vehiculo>,
     @InjectRepository(Mecanico)
     private readonly mecanicoRepository: Repository<Mecanico>,
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository?: Repository<Usuario>,
   ) {}
 
   async crear(
@@ -53,18 +59,35 @@ export class OrdenesTrabajoService {
     return await this.ordenRepository.save(orden);
   }
 
-  async obtenerTodas(): Promise<OrdenTrabajo[]> {
+  async obtenerTodas(usuario?: AuthenticatedUser): Promise<OrdenTrabajo[]> {
+    if (usuario?.rol === UserRole.MECANICO) {
+      const mecanicoId = await this.obtenerMecanicoVinculado(usuario);
+      return this.ordenRepository.find({
+        where: { mecanico: { id: mecanicoId } },
+      });
+    }
     return await this.ordenRepository.find();
   }
 
-  async obtenerPorId(id: number): Promise<OrdenTrabajo> {
+  async obtenerPorId(
+    id: number,
+    usuario?: AuthenticatedUser,
+  ): Promise<OrdenTrabajo> {
+    const where =
+      usuario?.rol === UserRole.MECANICO
+        ? {
+            id,
+            mecanico: { id: await this.obtenerMecanicoVinculado(usuario) },
+          }
+        : { id };
     const orden = await this.ordenRepository.findOne({
-      where: {
-        id,
-      },
+      where,
     });
 
     if (!orden) {
+      if (usuario?.rol === UserRole.MECANICO) {
+        throw new ForbiddenException('La orden no está asignada a este mecánico');
+      }
       throw new NotFoundException(
         `Orden de trabajo con ID ${id} no encontrada`,
       );
@@ -129,5 +152,21 @@ export class OrdenesTrabajoService {
     }
 
     return mecanico;
+  }
+
+  private async obtenerMecanicoVinculado(
+    usuario: AuthenticatedUser,
+  ): Promise<number> {
+    if (!this.usuarioRepository) {
+      throw new ForbiddenException('La cuenta no tiene un mecánico vinculado');
+    }
+    const cuenta = await this.usuarioRepository.findOne({
+      where: { id: usuario.id },
+      relations: { mecanico: true },
+    });
+    if (!cuenta?.mecanico?.activo) {
+      throw new ForbiddenException('La cuenta no tiene un mecánico activo');
+    }
+    return cuenta.mecanico.id;
   }
 }

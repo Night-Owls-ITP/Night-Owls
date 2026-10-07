@@ -18,7 +18,7 @@ describe('UsuariosService', () => {
       })),
     } as unknown as Repository<Usuario>;
 
-    const service = new UsuariosService(repo);
+    const service = new UsuariosService(repo, {} as never);
     const resultado = await service.crear({
       nombre: 'Ana García',
       email: 'ANA@EXAMPLE.COM',
@@ -47,7 +47,7 @@ describe('UsuariosService', () => {
       findOne: jest.fn().mockResolvedValue({ id: 1, email: 'ana@example.com' }),
     } as unknown as Repository<Usuario>;
 
-    const service = new UsuariosService(repo);
+    const service = new UsuariosService(repo, {} as never);
 
     await expect(
       service.crear({

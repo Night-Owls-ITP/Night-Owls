@@ -1,9 +1,12 @@
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Mecanico } from '../mecanicos/mecanico.entity';
 import { Vehiculo } from '../vehiculos/vehiculo.entity';
 import { OrdenTrabajo } from './orden-trabajo.entity';
 import { OrdenesTrabajoService } from './ordenes-trabajo.service';
+import { Usuario } from '../usuarios/usuario.entity';
+import { UserRole } from '../usuarios/user-role.enum';
+import { AuthenticatedUser } from '../auth/authenticated-user';
 
 jest.mock('@nestjs/typeorm', () => ({
   InjectRepository: () => () => undefined,
@@ -76,5 +79,69 @@ describe('OrdenesTrabajoService mechanic assignment', () => {
     });
     const actualizada = await service.actualizar(8, { mecanicoId: null });
     expect(actualizada.mecanico).toBeNull();
+  });
+
+  it('filtra órdenes usando el mecánico de la cuenta autenticada', async () => {
+    const mecanicoId = 42;
+    const usuarioId = 17;
+    const usuarioRepository = {
+      findOne: jest.fn().mockResolvedValue({
+        id: usuarioId,
+        mecanico: { id: mecanicoId, activo: true },
+      }),
+    } as unknown as Repository<Usuario>;
+    const ordenesRepository = {
+      find: jest.fn().mockResolvedValue([{ id: 9 }]),
+      findOne: jest.fn().mockResolvedValue(null),
+    } as unknown as Repository<OrdenTrabajo>;
+    const accesoService = new OrdenesTrabajoService(
+      ordenesRepository,
+      vehiculoRepository,
+      mecanicoRepository,
+      usuarioRepository,
+    );
+    const principal: AuthenticatedUser = {
+      id: usuarioId,
+      nombre: 'Mecánico',
+      email: 'mecanico@example.test',
+      rol: UserRole.MECANICO,
+    };
+
+    await accesoService.obtenerTodas(principal);
+
+    expect(ordenesRepository.find).toHaveBeenCalledWith({
+      where: { mecanico: { id: mecanicoId } },
+    });
+  });
+
+  it('rechaza consultas de una orden ajena al mecánico autenticado', async () => {
+    const usuarioRepository = {
+      findOne: jest.fn().mockResolvedValue({
+        id: 17,
+        mecanico: { id: 42, activo: true },
+      }),
+    } as unknown as Repository<Usuario>;
+    const ordenesRepository = {
+      findOne: jest.fn().mockResolvedValue(null),
+    } as unknown as Repository<OrdenTrabajo>;
+    const accesoService = new OrdenesTrabajoService(
+      ordenesRepository,
+      vehiculoRepository,
+      mecanicoRepository,
+      usuarioRepository,
+    );
+    const principal: AuthenticatedUser = {
+      id: 17,
+      nombre: 'Mecánico',
+      email: 'mecanico@example.test',
+      rol: UserRole.MECANICO,
+    };
+
+    await expect(
+      accesoService.obtenerPorId(99, principal),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(ordenesRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 99, mecanico: { id: 42 } },
+    });
   });
 });

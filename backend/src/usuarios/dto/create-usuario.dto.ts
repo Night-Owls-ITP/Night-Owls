@@ -2,11 +2,14 @@ import {
   IsBoolean,
   IsEmail,
   IsEnum,
-  IsOptional,
   IsString,
+  IsInt,
   Length,
+  Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+import { UserRole } from '../user-role.enum';
 
 export class CreateUsuarioDto {
   @IsString()
@@ -20,10 +23,15 @@ export class CreateUsuarioDto {
   @MinLength(8)
   password!: string;
 
-  @IsEnum(['administrador', 'recepcionista', 'mecanico'])
-  rol!: string;
+  @IsEnum(UserRole)
+  rol!: UserRole;
 
-  @IsOptional()
+  @ValidateIf((_dto, value) => value !== undefined)
   @IsBoolean()
   activo?: boolean;
+
+  @ValidateIf((_dto, value) => value !== undefined)
+  @IsInt()
+  @Min(1)
+  mecanicoId?: number;
 }

@@ -8,11 +8,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Roles } from '../auth/roles.decorator';
 import { CreateProveedorDto } from './dto/create-proveedor.dto';
 import { UpdateProveedorDto } from './dto/update-proveedor.dto';
 import { ProveedoresService } from './proveedores.service';
+import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('proveedores')
+@Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
 export class ProveedoresController {
   constructor(private readonly proveedoresService: ProveedoresService) {}
 

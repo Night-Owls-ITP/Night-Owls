@@ -7,42 +7,62 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
+import type { AuthenticatedRequest } from '../auth/authenticated-user';
+import { Roles } from '../auth/roles.decorator';
 import { CreateDetalleServicioDto } from './dto/create-detalle-servicio.dto';
 import { UpdateDetalleServicioDto } from './dto/update-detalle-servicio.dto';
 import { DetallesServicioService } from './detalles-servicio.service';
+import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('detalles-servicio')
+@Roles(UserRole.ADMINISTRADOR)
 export class DetallesServicioController {
   constructor(
     private readonly detallesServicioService: DetallesServicioService,
   ) {}
 
   @Post()
-  crear(@Body() datos: CreateDetalleServicioDto) {
-    return this.detallesServicioService.crear(datos);
+  @Roles(UserRole.ADMINISTRADOR, UserRole.MECANICO)
+  crear(
+    @Body() datos: CreateDetalleServicioDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.detallesServicioService.crear(datos, request.user);
   }
 
   @Get()
-  obtenerTodos() {
-    return this.detallesServicioService.obtenerTodos();
+  @Roles(UserRole.ADMINISTRADOR, UserRole.MECANICO, UserRole.CAJERO)
+  obtenerTodos(@Req() request: AuthenticatedRequest) {
+    return this.detallesServicioService.obtenerTodos(request.user);
   }
 
   @Get(':id')
-  obtenerPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.detallesServicioService.obtenerPorId(id);
+  @Roles(UserRole.ADMINISTRADOR, UserRole.MECANICO, UserRole.CAJERO)
+  obtenerPorId(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.detallesServicioService.obtenerPorId(id, request.user);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.MECANICO)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() datos: UpdateDetalleServicioDto,
+    @Req() request: AuthenticatedRequest,
   ) {
-    return this.detallesServicioService.actualizar(id, datos);
+    return this.detallesServicioService.actualizar(id, datos, request.user);
   }
 
   @Delete(':id')
-  eliminar(@Param('id', ParseIntPipe) id: number) {
-    return this.detallesServicioService.eliminar(id);
+  @Roles(UserRole.ADMINISTRADOR, UserRole.MECANICO)
+  eliminar(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.detallesServicioService.eliminar(id, request.user);
   }
 }
