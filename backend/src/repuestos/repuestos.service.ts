@@ -7,6 +7,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { lanzarConflictoDeIntegridad } from '../common/database-errors';
 import { DetalleCompra } from '../detalles-compra/detalle-compra.entity';
+import { DetalleRepuesto } from '../detalles-repuesto/detalle-repuesto.entity';
 import { CreateRepuestoDto } from './dto/create-repuesto.dto';
 import { UpdateRepuestoDto } from './dto/update-repuesto.dto';
 import { Repuesto } from './repuesto.entity';
@@ -18,6 +19,8 @@ export class RepuestosService {
     private readonly repuestoRepository: Repository<Repuesto>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
+    @InjectRepository(DetalleRepuesto)
+    private readonly detalleRepuestoRepository?: Repository<DetalleRepuesto>,
   ) {}
 
   async crear(datos: CreateRepuestoDto): Promise<Repuesto> {
@@ -81,12 +84,17 @@ export class RepuestosService {
         if (!repuesto) {
           throw new NotFoundException(`Repuesto con ID ${id} no encontrado`);
         }
-        const detalles = await manager.getRepository(DetalleCompra).count({
+        const detallesCompra = await manager.getRepository(DetalleCompra).count({
           where: { repuesto: { id } },
         });
-        if (detalles > 0) {
+        const detallesRepuesto = this.detalleRepuestoRepository
+          ? await manager.getRepository(DetalleRepuesto).count({
+              where: { repuesto: { id } },
+            })
+          : 0;
+        if (detallesCompra > 0 || detallesRepuesto > 0) {
           throw new ConflictException(
-            'No se puede eliminar un repuesto con detalles de compra; desactívelo',
+            'No se puede eliminar un repuesto con detalles asociados; desactívelo primero',
           );
         }
         await manager.getRepository(Repuesto).remove(repuesto);
