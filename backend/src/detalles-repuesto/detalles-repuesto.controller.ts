@@ -17,7 +17,6 @@ import { DetallesRepuestoService } from './detalles-repuesto.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('detalles-repuesto')
-@Roles(UserRole.ADMINISTRADOR)
 export class DetallesRepuestoController {
   constructor(
     private readonly detallesRepuestoService: DetallesRepuestoService,

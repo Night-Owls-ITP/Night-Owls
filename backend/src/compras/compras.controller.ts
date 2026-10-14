@@ -15,26 +15,29 @@ import { ComprasService } from './compras.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('compras')
-@Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
 export class ComprasController {
   constructor(private readonly comprasService: ComprasService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   crear(@Body() datos: CreateCompraDto) {
     return this.comprasService.crear(datos);
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   obtenerTodos() {
     return this.comprasService.obtenerTodos();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   obtenerPorId(@Param('id', ParseIntPipe) id: number) {
     return this.comprasService.obtenerPorId(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() datos: UpdateCompraDto,
@@ -43,6 +46,7 @@ export class ComprasController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.comprasService.eliminar(id);
   }

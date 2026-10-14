@@ -15,7 +15,6 @@ import { UpdateCitaDto } from './dto/update-cita.dto';
 import { CitasService } from './citas.service';
 
 @Controller('citas')
-@Roles(UserRole.ADMINISTRADOR)
 export class CitasController {
   constructor(private readonly citasService: CitasService) {}
 
@@ -47,6 +46,7 @@ export class CitasController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.citasService.eliminar(id);
   }

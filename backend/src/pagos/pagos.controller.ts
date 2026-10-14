@@ -15,26 +15,29 @@ import { PagosService } from './pagos.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('pagos')
-@Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
 export class PagosController {
   constructor(private readonly pagosService: PagosService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   crear(@Body() createPagoDto: CreatePagoDto) {
     return this.pagosService.crear(createPagoDto);
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   obtenerTodos() {
     return this.pagosService.obtenerTodos();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   obtenerPorId(@Param('id', ParseIntPipe) id: number) {
     return this.pagosService.obtenerPorId(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePagoDto: UpdatePagoDto,
@@ -43,6 +46,7 @@ export class PagosController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.pagosService.eliminar(id);
   }

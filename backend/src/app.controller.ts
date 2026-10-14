@@ -4,11 +4,11 @@ import { AppService } from './app.service';
 import { UserRole } from './usuarios/user-role.enum';
 
 @Controller()
-@Roles(UserRole.ADMINISTRADOR)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR)
   getHello(): string {
     return this.appService.getHello();
   }

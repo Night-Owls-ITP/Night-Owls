@@ -15,11 +15,11 @@ import { ServiciosService } from './servicios.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('servicios')
-@Roles(UserRole.ADMINISTRADOR)
 export class ServiciosController {
   constructor(private readonly serviciosService: ServiciosService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR)
   crear(@Body() datos: CreateServicioDto) {
     return this.serviciosService.crear(datos);
   }
@@ -37,6 +37,7 @@ export class ServiciosController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() datos: UpdateServicioDto,
@@ -45,6 +46,7 @@ export class ServiciosController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.serviciosService.eliminar(id);
   }

@@ -15,26 +15,29 @@ import { MecanicosService } from './mecanicos.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('mecanicos')
-@Roles(UserRole.ADMINISTRADOR)
 export class MecanicosController {
   constructor(private readonly mecanicosService: MecanicosService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR)
   crear(@Body() datos: CreateMecanicoDto) {
     return this.mecanicosService.crear(datos);
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR)
   obtenerTodos() {
     return this.mecanicosService.obtenerTodos();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   obtenerPorId(@Param('id', ParseIntPipe) id: number) {
     return this.mecanicosService.obtenerPorId(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() datos: UpdateMecanicoDto,
@@ -43,6 +46,7 @@ export class MecanicosController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.mecanicosService.eliminar(id);
   }

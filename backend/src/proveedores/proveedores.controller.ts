@@ -15,26 +15,29 @@ import { ProveedoresService } from './proveedores.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('proveedores')
-@Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
 export class ProveedoresController {
   constructor(private readonly proveedoresService: ProveedoresService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   crear(@Body() datos: CreateProveedorDto) {
     return this.proveedoresService.crear(datos);
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   obtenerTodos() {
     return this.proveedoresService.obtenerTodos();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   obtenerPorId(@Param('id', ParseIntPipe) id: number) {
     return this.proveedoresService.obtenerPorId(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() datos: UpdateProveedorDto,
@@ -43,6 +46,7 @@ export class ProveedoresController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.INVENTARISTA)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.proveedoresService.eliminar(id);
   }

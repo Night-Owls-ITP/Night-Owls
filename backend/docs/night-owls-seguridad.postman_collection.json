@@ -1,0 +1,257 @@
+{
+  "info": {
+    "_postman_id": "f97c5a1c-4558-4a0f-9420-b83701353644",
+    "name": "Night Owls - Seguridad JWT y roles",
+    "description": "Demostración ordenada de login público, autenticación JWT y autorización por roles. Completa las credenciales mediante variables locales antes de ejecutar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "recepcionistaEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "recepcionistaPassword",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "recepcionistaToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Login público administrador (200)",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login de administrador responde 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json();",
+              "  pm.test('La respuesta contiene access_token', function () {",
+              "    pm.expect(data.access_token).to.be.a('string').and.not.empty;",
+              "  });",
+              "  if (typeof data.access_token === 'string' && data.access_token.length > 0) {",
+              "    pm.collectionVariables.set('adminToken', data.access_token);",
+              "  }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Login público recepcionista (200)",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{recepcionistaEmail}}\",\n  \"password\": \"{{recepcionistaPassword}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login de recepcionista responde 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "if (pm.response.code === 200) {",
+              "  const data = pm.response.json();",
+              "  pm.test('La respuesta contiene access_token', function () {",
+              "    pm.expect(data.access_token).to.be.a('string').and.not.empty;",
+              "  });",
+              "  if (typeof data.access_token === 'string' && data.access_token.length > 0) {",
+              "    pm.collectionVariables.set('recepcionistaToken', data.access_token);",
+              "  }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. GET usuarios con adminToken (200)",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "url": "{{baseUrl}}/usuarios"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Administrador autorizado: HTTP 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. GET usuarios sin Authorization (401)",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "url": "{{baseUrl}}/usuarios"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Sin token: HTTP 401', function () {",
+              "  pm.response.to.have.status(401);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. GET usuarios con token inválido (401)",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer invalid.token.value",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/usuarios"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Token inválido: HTTP 401', function () {",
+              "  pm.response.to.have.status(401);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. GET usuarios con recepcionistaToken (403)",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{recepcionistaToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "url": "{{baseUrl}}/usuarios"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Recepcionista autenticada sin permiso: HTTP 403', function () {",
+              "  pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

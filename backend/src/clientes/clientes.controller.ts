@@ -18,7 +18,6 @@ import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 
 @Controller('clientes')
-@Roles(UserRole.ADMINISTRADOR)
 export class ClientesController {
   constructor(
     private readonly clientesService: ClientesService,
@@ -68,6 +67,7 @@ export class ClientesController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(
     @Param('id', ParseIntPipe)
     id: number,
