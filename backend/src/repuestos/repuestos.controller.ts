@@ -15,7 +15,6 @@ import { RepuestosService } from './repuestos.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('repuestos')
-@Roles(UserRole.ADMINISTRADOR)
 export class RepuestosController {
   constructor(private readonly repuestosService: RepuestosService) {}
 
@@ -47,6 +46,7 @@ export class RepuestosController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.repuestosService.eliminar(id);
   }

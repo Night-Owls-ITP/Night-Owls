@@ -20,7 +20,6 @@ import { CreateOrdenTrabajoDto } from './dto/create-orden-trabajo.dto';
 import { UpdateOrdenTrabajoDto } from './dto/update-orden-trabajo.dto';
 
 @Controller('ordenes-trabajo')
-@Roles(UserRole.ADMINISTRADOR)
 export class OrdenesTrabajoController {
   constructor(
     private readonly ordenesTrabajoService:
@@ -71,6 +70,7 @@ export class OrdenesTrabajoController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   actualizar(
     @Param(
       'id',
@@ -90,6 +90,7 @@ export class OrdenesTrabajoController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(
     @Param(
       'id',

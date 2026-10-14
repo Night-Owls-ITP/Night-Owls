@@ -15,31 +15,35 @@ import { UsuariosService } from './usuarios.service';
 import { UserRole } from './user-role.enum';
 
 @Controller('usuarios')
-@Roles(UserRole.ADMINISTRADOR)
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR)
   crear(@Body() createUsuarioDto: CreateUsuarioDto) {
     return this.usuariosService.crear(createUsuarioDto);
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR)
   obtenerTodos() {
     return this.usuariosService.obtenerTodos();
   }
 
   @Get('roles')
+  @Roles(UserRole.ADMINISTRADOR)
   obtenerRoles() {
     return this.usuariosService.obtenerRoles();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   obtenerPorId(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.obtenerPorId(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUsuarioDto: UpdateUsuarioDto,
@@ -48,6 +52,7 @@ export class UsuariosController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.eliminar(id);
   }

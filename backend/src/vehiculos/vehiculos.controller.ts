@@ -18,7 +18,6 @@ import { CreateVehiculoDto } from './dto/create-vehiculo.dto';
 import { UpdateVehiculoDto } from './dto/update-vehiculo.dto';
 
 @Controller('vehiculos')
-@Roles(UserRole.ADMINISTRADOR)
 export class VehiculosController {
   constructor(
     private readonly vehiculosService:
@@ -76,6 +75,7 @@ export class VehiculosController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR)
   eliminar(
     @Param(
       'id',

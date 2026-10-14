@@ -333,5 +333,9 @@ describe('Global JWT and roles guards (HTTP)', () => {
     expect(orderService.obtenerTodas).toHaveBeenCalledWith(
       identities.receptionist,
     );
+    await request(app.getHttpServer())
+      .get('/usuarios')
+      .set('Authorization', `Bearer ${receptionistToken}`)
+      .expect(403);
   });
 });

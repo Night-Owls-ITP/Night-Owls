@@ -15,26 +15,29 @@ import { FacturasService } from './facturas.service';
 import { UserRole } from '../usuarios/user-role.enum';
 
 @Controller('facturas')
-@Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
 export class FacturasController {
   constructor(private readonly facturasService: FacturasService) {}
 
   @Post()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   crear(@Body() createFacturaDto: CreateFacturaDto) {
     return this.facturasService.crear(createFacturaDto);
   }
 
   @Get()
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   obtenerTodos() {
     return this.facturasService.obtenerTodos();
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   obtenerPorId(@Param('id', ParseIntPipe) id: number) {
     return this.facturasService.obtenerPorId(id);
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateFacturaDto: UpdateFacturaDto,
@@ -43,6 +46,7 @@ export class FacturasController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.CAJERO)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.facturasService.eliminar(id);
   }
