@@ -22,7 +22,7 @@ import { FacturasModule } from './facturas/facturas.module';
 import { PagosModule } from './pagos/pagos.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { AuthModule } from './auth/auth.module';
-import { BasicAuthGuard } from './auth/basic-auth.guard';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 
 @Module({
@@ -81,7 +81,7 @@ import { RolesGuard } from './auth/roles.guard';
 
   providers: [
     AppService,
-    { provide: APP_GUARD, useClass: BasicAuthGuard },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
