@@ -53,6 +53,21 @@ describe('AuthenticationService', () => {
     });
   });
 
+  it('rechaza la contrase?a incorrecta con UnauthorizedException', async () => {
+    const { service } = createService({
+      id: 4,
+      nombre: 'Usuario activo',
+      email: 'user@example.test',
+      rol: UserRole.RECEPCIONISTA,
+      activo: true,
+      passwordHash,
+    });
+
+    await expect(
+      service.authenticate('user@example.test', 'wrong password'),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
   it.each([
     [null, 'correct horse battery'],
     [{ id: 1, activo: false, passwordHash }, 'correct horse battery'],
