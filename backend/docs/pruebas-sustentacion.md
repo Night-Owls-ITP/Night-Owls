@@ -1,13 +1,14 @@
 # Pruebas para la sustentación: autenticación y roles
 
-## Prueba de integración de vehículos
+## Pruebas de integración con MySQL
 
-La prueba `test/vehiculos.e2e-spec.ts` inicia la aplicación NestJS, firma un JWT
-de administrador y usa una base MySQL exclusiva. Antes de ejecutarla, crea una
-base vacía cuyo nombre termine en `_test`; la prueba activa TypeORM
-`synchronize` solo para esa base, crea un cliente y un usuario temporales,
-verifica `POST /vehiculos` y consulta directamente la FK `clienteId`. Al
-finalizar elimina sus filas de vehículo, cliente y usuario.
+Las pruebas `test/clientes.e2e-spec.ts` y `test/vehiculos.e2e-spec.ts` inician la
+aplicación NestJS, firman un JWT de administrador y usan una base MySQL
+exclusiva. Antes de ejecutarlas, crea una base vacía cuyo nombre termine en
+`_test`; cada prueba activa TypeORM `synchronize` solo para esa base y elimina
+al finalizar las filas que insertó. La prueba de clientes verifica
+`GET /clientes/:id` y los datos del cliente; la de vehículos verifica
+`POST /vehiculos` y la FK `clienteId`.
 
 Para compatibilidad con el paquete ESM `@nestjs/typeorm` del proyecto, la
 configuración e2e lo sustituye por `test/mocks/nestjs-typeorm-e2e.ts`; ese
@@ -24,10 +25,11 @@ $env:TEST_DB_USERNAME = "<usuario MySQL de pruebas>"
 $env:TEST_DB_PASSWORD = "<contraseña MySQL de pruebas>"
 $env:TEST_DB_NAME = "night_owls_test"
 npm run test:e2e:vehiculos
+npm run test:e2e:clientes
 ```
 
-La prueba rechaza bases cuyo nombre no termine en `_test`. El resto de pruebas
-e2e se ejecuta con `npm run test:e2e`.
+Ambas pruebas rechazan bases cuyo nombre no termine en `_test`. El resto de
+pruebas e2e se ejecuta con `npm run test:e2e`.
 
 Si Jest no hereda las variables de la terminal, guárdalas localmente en
 `backend/.env.test.local` con los mismos nombres y valores del ejemplo. Ese
