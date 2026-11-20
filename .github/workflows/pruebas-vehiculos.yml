@@ -11,6 +11,7 @@ on:
 jobs:
   pruebas:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: backend
@@ -23,14 +24,15 @@ jobs:
           MYSQL_DATABASE: vehiculos_test
           MYSQL_USER: night_ci
           MYSQL_PASSWORD: night_ci_demo
-        ports: [3306/tcp]
+        ports:
+          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping -h 127.0.0.1"
           --health-interval=5s --health-timeout=5s --health-retries=20
 
     env:
       TEST_DB_HOST: 127.0.0.1
-      TEST_DB_PORT: ${{ job.services.mysql.ports[3306] }}
+      TEST_DB_PORT: 3306
       TEST_DB_USERNAME: night_ci
       TEST_DB_PASSWORD: night_ci_demo
       TEST_DB_NAME: vehiculos_test
