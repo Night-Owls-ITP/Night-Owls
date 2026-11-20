@@ -1,0 +1,57 @@
+
+name: Pruebas de vehículos
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci_demo
+          MYSQL_DATABASE: vehiculos_test
+          MYSQL_USER: night_ci
+          MYSQL_PASSWORD: night_ci_demo
+        ports: [3306/tcp]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    env:
+      TEST_DB_HOST: 127.0.0.1
+      TEST_DB_PORT: ${{ job.services.mysql.ports[3306] }}
+      TEST_DB_USERNAME: night_ci
+      TEST_DB_PASSWORD: night_ci_demo
+      TEST_DB_NAME: vehiculos_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar dependencias
+        id: dependencias
+        run: npm ci
+
+      - name: Pruebas unitarias
+        run: >-
+          npm test -- --ci --runInBand --verbose --runTestsByPath
+          src/vehiculos/vehiculos.controller.spec.ts
+          src/vehiculos/vehiculos.service.spec.ts
+
+      - name: Pruebas de integración con MySQL
+        if: ${{ !cancelled() && steps.dependencias.outcome == 'success' }}
+        run: npm run test:e2e:vehiculos -- --ci --verbose
